@@ -1,0 +1,247 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vaibhav's Friendship Vibe 🥰🎉💖</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;padding:18px 12px;font-family:Arial,sans-serif;color:#342343;background:linear-gradient(135deg,#ffe3f0,#eee5ff);min-height:100vh}
+main{max-width:650px;margin:auto}
+header{text-align:center;padding:15px 5px}
+header .heart{font-size:45px}
+h1{color:#e83e91;font-size:clamp(30px,8vw,44px);margin:8px}
+header p{color:#766482;line-height:1.5}
+.card{background:#ffffffed;border-radius:22px;padding:19px;margin:15px 0;box-shadow:0 10px 30px #7a45951c}
+h2{margin:0 0 14px;font-size:21px}
+.names{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+label{display:block;font-size:12px;font-weight:bold;margin-bottom:7px;color:#725e80}
+input{width:100%;padding:13px;border:1px solid #e2cde9;border-radius:12px;font-size:16px;min-width:0}
+button{border:0;border-radius:12px;padding:12px;font-size:15px;font-weight:bold;cursor:pointer}
+.primary{background:linear-gradient(100deg,#ff4c99,#8050f9);color:white}
+.secondary{background:#f0e5ff;color:#7146ad}
+.full{width:100%;margin-top:14px}
+.note{font-size:12px;line-height:1.5;color:#83738e}
+.hidden{display:none!important}
+.top{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.pill{background:#f4e6ff;border-radius:20px;padding:7px 10px;font-size:12px;font-weight:bold;color:#7542ad}
+.progress{height:7px;background:#eee3f3;border-radius:9px;margin:15px 0;overflow:hidden}
+#bar{height:100%;width:0;background:linear-gradient(90deg,#ff4c99,#8050f9)}
+.words{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:15px}
+.word{background:#f5effa;padding:7px 9px;border-radius:8px;font-size:12px;font-weight:bold}
+.word.found{background:#d9ffec;color:#087b50;text-decoration:line-through}
+.grid{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:5px;max-width:420px;margin:auto}
+.cell{padding:0;aspect-ratio:1;background:white;color:#38264b;border:1px solid #e9dcef;border-radius:8px;font-size:clamp(13px,4vw,20px);box-shadow:0 2px 0 #e9dcef}
+.cell.selected{background:#ffd7e9;border-color:#ff4c99}
+.cell.found{background:#d9ffec;border-color:#8be4ba;color:#087b50}
+.message{text-align:center;color:#7c698b;font-size:13px;line-height:1.5;margin:14px 0}
+.actions{display:flex;gap:8px;margin-top:12px}
+.actions button{flex:1}
+#result{text-align:center;display:none}
+#result.show{display:block}
+.big{font-size:48px}
+.percent{font-size:70px;font-weight:900;color:#e83e91;margin:8px}
+.result-title{font-size:24px;font-weight:900}
+.results{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px;text-align:left}
+.resultbox{background:#fff0f7;border-radius:14px;padding:13px;line-height:1.5}
+.resultbox:nth-child(2){background:#f1ebff}
+.resultbox p{font-size:13px;color:#6e5d7b;margin-bottom:0}
+footer{text-align:center;font-size:12px;color:#8b7898;padding:14px}
+@media(max-width:420px){.card{padding:15px}.grid{gap:4px}.cell{border-radius:6px}.results{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main>
+<header>
+  <div class="heart">💖✨</div>
+  <h1>Friendship Vibe</h1>
+  <p>Solve the letter challenge and discover your friendship match!</p>
+</header>
+
+<section class="card" id="setup">
+  <h2>👯 Who's playing?</h2>
+  <div class="names">
+    <div><label for="name1">YOUR NAME</label><input id="name1" maxlength="18" placeholder="Vaibhav"></div>
+    <div><label for="name2">FRIEND'S NAME</label><input id="name2" maxlength="18" placeholder="Rahul"></div>
+  </div>
+  <button class="primary full" id="start">Start Friendship Game 💫</button>
+  <p class="note">Fun results only! This game cannot measure real trust or predict someone's actions.</p>
+</section>
+
+<section class="card hidden" id="game">
+  <div class="top"><h2>🔎 Find the words</h2><span class="pill" id="count">0 / 5 found</span></div>
+  <p class="note">Tap the first letter of a word, then tap its last letter. Words can go across, down or diagonally.</p>
+  <div class="progress"><div id="bar"></div></div>
+  <div class="words" id="words"></div>
+  <div class="grid" id="grid"></div>
+  <p class="message" id="message">Find all five words to reveal your results!</p>
+  <div class="actions">
+    <button class="secondary" id="clear">Clear selection</button>
+    <button class="primary" id="new">New Puzzle ↻</button>
+  </div>
+</section>
+
+<section class="card" id="result">
+  <div class="big">💞</div>
+  <span class="pill">YOUR FRIENDSHIP REPORT</span>
+  <div class="percent" id="percent">87%</div>
+  <div class="result-title" id="title"></div>
+  <p id="pair"></p>
+  <div class="results">
+    <div class="resultbox"><b>💖 Friendship Vibe</b><p id="friend"></p></div>
+    <div class="resultbox"><b>🚦 Blocking Vibe</b><p id="blocking"></p></div>
+  </div>
+  <p class="note">This playful score is generated from the names entered. It does not reflect actual friendship compatibility.</p>
+  <button class="primary full" id="again">Play Again 🎮</button>
+</section>
+<footer>Made with 💗 for friends</footer>
+</main>
+
+<script>
+const WORDS=["TRUST","SMILE","HONEST","HAPPY","FRIEND"];
+const N=8;
+let board=[],positions={},found=new Set(),first=null;
+const $=id=>document.getElementById(id);
+
+function makePuzzle(){
+  board=Array.from({length:N},()=>Array(N).fill(""));
+  positions={};found=new Set();first=null;
+  const dirs=[[0,1],[1,0],[1,1],[-1,1],[0,-1],[-1,0],[-1,-1],[1,-1]];
+  for(const word of [...WORDS].sort((a,b)=>b.length-a.length)){
+    let placed=false;
+    for(let tries=0;tries<500&&!placed;tries++){
+      const [dr,dc]=dirs[Math.floor(Math.random()*dirs.length)];
+      const r=Math.floor(Math.random()*N),c=Math.floor(Math.random()*N);
+      const er=r+dr*(word.length-1),ec=c+dc*(word.length-1);
+      if(er<0||er>=N||ec<0||ec>=N)continue;
+      const cells=[];let ok=true;
+      for(let i=0;i<word.length;i++){
+        const rr=r+dr*i,cc=c+dc*i;
+        if(board[rr][cc]&&board[rr][cc]!==word[i]){ok=false;break}
+        cells.push([rr,cc]);
+      }
+      if(ok){
+        cells.forEach(([rr,cc],i)=>board[rr][cc]=word[i]);
+        positions[word]=cells;placed=true;
+      }
+    }
+    if(!placed){makePuzzle();return}
+  }
+  const alphabet="ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  board=board.map(row=>row.map(ch=>ch||alphabet[Math.floor(Math.random()*26)]));
+  render();
+}
+function render(){
+  $("words").innerHTML="";
+  WORDS.forEach(w=>{
+    const s=document.createElement("span");
+    s.className="word"+(found.has(w)?" found":"");
+    s.textContent=w;$("words").appendChild(s);
+  });
+  $("grid").innerHTML="";
+  for(let r=0;r<N;r++)for(let c=0;c<N;c++){
+    const b=document.createElement("button");
+    b.className="cell";b.textContent=board[r][c];
+    b.dataset.r=r;b.dataset.c=c;
+    b.setAttribute("aria-label",`Row ${r+1}, column ${c+1}, ${board[r][c]}`);
+    b.onclick=()=>choose(r,c);
+    $("grid").appendChild(b);
+  }
+  positionsFound();
+  $("count").textContent=`${found.size} / ${WORDS.length} found`;
+  $("bar").style.width=(found.size/WORDS.length*100)+"%";
+}
+function positionsFound(){
+  for(const w of found){
+    (positions[w]||[]).forEach(([r,c])=>{
+      const b=$("grid").querySelector(`[data-r="${r}"][data-c="${c}"]`);
+      if(b)b.classList.add("found");
+    });
+  }
+}
+function choose(r,c){
+  const cell=$("grid").querySelector(`[data-r="${r}"][data-c="${c}"]`);
+  if(!first){
+    $("grid").querySelectorAll(".selected").forEach(x=>x.classList.remove("selected"));
+    first=[r,c];cell.classList.add("selected");
+    $("message").textContent="Now tap the last letter of the word.";
+    return;
+  }
+  const [sr,sc]=first;first=null;
+  const dr=Math.sign(r-sr),dc=Math.sign(c-sc);
+  if(!(r===sr||c===sc||Math.abs(r-sr)===Math.abs(c-sc))){
+    $("message").textContent="Choose a straight line, including diagonals.";
+    $("grid").querySelectorAll(".selected").forEach(x=>x.classList.remove("selected"));
+    choose(r,c);return;
+  }
+  const len=Math.max(Math.abs(r-sr),Math.abs(c-sc))+1;
+  let text="";
+  for(let i=0;i<len;i++)text+=board[sr+dr*i][sc+dc*i];
+  const reversed=text.split("").reverse().join("");
+  const match=WORDS.find(w=>!found.has(w)&&(w===text||w===reversed));
+  $("grid").querySelectorAll(".selected").forEach(x=>x.classList.remove("selected"));
+  if(match){
+    found.add(match);render();
+    $("message").textContent="✨ Great! You found "+match+"!";
+    if(found.size===WORDS.length)showResult();
+  }else $("message").textContent="Not quite! Try another word. 😊";
+}
+function hash(s){
+  let h=2166136261;
+  for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}
+  return h>>>0;
+}
+function showResult(){
+  const a=$("name1").value.trim()||"Friend 1";
+  const b=$("name2").value.trim()||"Friend 2";
+  const score=55+hash((a+"|"+b).toLowerCase())%46;
+  let title,friend,block;
+  if(score>=90){
+    title="Besties Energy! 💖";
+    friend="Big best-friend energy! Keep making great memories and supporting each other.";
+    block="Unblockable Besties 😂 Keep misunderstandings small and communication kind.";
+  }else if(score>=75){
+    title="Strong Friend Vibes! 🫶";
+    friend="A fun match! Trust, honesty and shared memories can make a friendship stronger.";
+    block="Low Drama Zone 😎 Talk things out if a misunderstanding happens.";
+  }else if(score>=60){
+    title="Different Vibes, Still Friends! 🌈";
+    friend="Different personalities can make a friendship interesting. Keep respecting each other.";
+    block="Tiny Drama Alert 🚦 Give each other space and communicate clearly.";
+  }else{
+    title="Mystery Duo! ✨";
+    friend="Your friendship story is still being written. Real connection grows with time and care.";
+    block="No Block Predictions 🚫 A name game cannot know what someone will do.";
+  }
+  $("percent").textContent=score+"%";
+  $("title").textContent=title;
+  $("pair").textContent=a+" + "+b;
+  $("friend").textContent=friend;
+  $("blocking").textContent=block;
+  $("result").classList.add("show");
+  $("result").scrollIntoView({behavior:"smooth",block:"center"});
+}
+$("start").onclick=()=>{
+  $("setup").classList.add("hidden");
+  $("result").classList.remove("show");
+  $("game").classList.remove("hidden");
+  makePuzzle();
+  $("message").textContent="Find all five words to reveal your results!";
+  $("game").scrollIntoView({behavior:"smooth"});
+};
+$("clear").onclick=()=>{
+  first=null;
+  $("grid").querySelectorAll(".selected").forEach(x=>x.classList.remove("selected"));
+  $("message").textContent="Selection cleared. Choose the first and last letters.";
+};
+$("new").onclick=()=>{makePuzzle();$("message").textContent="Fresh puzzle! Find all five words."};
+$("again").onclick=()=>{
+  $("result").classList.remove("show");
+  $("game").classList.add("hidden");
+  $("setup").classList.remove("hidden");
+  $("setup").scrollIntoView({behavior:"smooth"});
+};
+</script>
+</body>
+</html>
