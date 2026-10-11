@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vaibhav's Game Zone</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#17132e;color:white;font-family:Arial,sans-serif}
+header{text-align:center;padding:25px;font-size:27px;font-weight:bold}
+header span{color:#ff62aa}
+main{max-width:600px;margin:auto;padding:15px}
+.card{background:#27203f;padding:22px;border-radius:18px;margin-bottom:18px}
+h1{text-align:center;font-size:34px}
+h1 span{color:#ff62aa}
+p{line-height:1.5;color:#d2cbe7}
+label{display:block;margin:15px 0 7px;font-weight:bold}
+input,select{width:100%;padding:13px;border-radius:9px;border:1px solid #71628f;background:#17132e;color:white;font-size:16px}
+.question{padding:12px;background:#34294f;border-radius:12px;margin:12px 0}
+button{width:100%;padding:14px;margin-top:12px;border:0;border-radius:10px;background:linear-gradient(90deg,#ff62aa,#9275ff);color:white;font-size:16px;font-weight:bold}
+.answer{background:#403358;text-align:left}
+.hidden{display:none}
+#link{overflow-wrap:anywhere;background:#17132e;padding:12px;border-radius:8px}
+#score{text-align:center;font-size:48px;color:#ff62aa}
+</style>
+</head>
+<body>
+<header>🎮 Vaibhav's <span>Game Zone</span></header>
+<main>
+<section id="home">
+<div class="card">
+<h1>Who knows you<br><span>the best?</span></h1>
+<p style="text-align:center">Create a friendship quiz and challenge your friends!</p>
+</div>
+<div class="card">
+<h2>Create Your Quiz</h2>
+<label for="name">Your name</label>
+<input id="name" placeholder="Enter your name" maxlength="30">
+<div id="builder"></div>
+<button onclick="createQuiz()">Create My Quiz</button>
+</div>
+</section>
+
+<section id="share" class="card hidden">
+<h2>Your quiz is ready! 🎉</h2>
+<p>Send this link to your friends.</p>
+<div id="link"></div>
+<button onclick="copyLink()">Copy Quiz Link</button>
+<button onclick="playOwn()">Play My Quiz</button>
+<p id="copyMessage"></p>
+</section>
+
+<section id="game" class="card hidden">
+<p id="progress"></p>
+<h2 id="questionTitle"></h2>
+<div id="answers"></div>
+</section>
+
+<section id="result" class="card hidden">
+<h2 style="text-align:center">Quiz Completed!</h2>
+<div id="score"></div>
+<p id="message"></p>
+<button onclick="restart()">Play Again</button>
+<button onclick="goHome()">Create Your Own Quiz</button>
+</section>
+</main>
+
+<script>
+const questions=[
+{q:"What is my favourite food?",o:["Pizza","Burger","Biryani","Ice Cream"]},
+{q:"What do I enjoy most?",o:["Gaming","Movies","Travelling","Reading"]},
+{q:"Which describes me best?",o:["Funny","Quiet","Adventurous","Creative"]},
+{q:"What music do I like?",o:["Pop","Hip-Hop","Classical","Lo-fi"]},
+{q:"What would I do on a free day?",o:["Sleep","Go Out","Play Games","Watch Movies"]}
+];
+const $=id=>document.getElementById(id);
+let quiz=null,current=0,score=0;
+
+function build(){
+$("builder").innerHTML=questions.map((q,i)=>`
+<div class="question"><b>${i+1}. ${q.q}</b>
+<label for="q${i}">Choose your answer</label>
+<select id="q${i}">${q.o.map((x,j)=>`<option value="${j}">${x}</option>`).join("")}</select>
+</div>`).join("");
+}
+
+function createQuiz(){
+const name=$("name").value.trim();
+if(!name){alert("Please enter your name!");return;}
+quiz={name,answers:questions.map((q,i)=>Number($("q"+i).value))};
+const encoded=btoa(unescape(encodeURIComponent(JSON.stringify(quiz))));
+$("link").textContent=location.href.split("#")[0]+"#quiz="+encoded;
+$("home").classList.add("hidden");
+$("share").classList.remove("hidden");
+}
+
+function readLink(){
+try{
+const raw=new URLSearchParams(location.hash.slice(1)).get("quiz");
+if(!raw)return null;
+const data=JSON.parse(decodeURIComponent(escape(atob(raw))));
+if(typeof data.name!=="string"||!Array.isArray(data.answers)||data.answers.length!==questions.length)return null;
+if(!data.answers.every((a,i)=>Number.isInteger(a)&&a>=0&&a<questions[i].o.length))return null;
+return data;
+}catch(e){return null;}
+}
+
+async function copyLink(){
+try{
+await navigator.clipboard.writeText($("link").textContent);
+$("copyMessage").textContent="Link copied! Share it with friends.";
+}catch(e){
+$("copyMessage").textContent="Copy the link manually by selecting its text.";
+}
+}
+
+function playOwn(){start(quiz)}
+function start(data){
+quiz=data;current=0;score=0;
+$("home").classList.add("hidden");
+$("share").classList.add("hidden");
+$("result").classList.add("hidden");
+$("game").classList.remove("hidden");
+showQuestion();
+}
+
+function showQuestion(){
+const q=questions[current];
+$("progress").textContent=`Question ${current+1} of ${questions.length}`;
+$("questionTitle").textContent=q.q;
+$("answers").innerHTML=q.o.map((x,i)=>
+`<button class="answer" onclick="choose(${i})">${x}</button>`
+).join("");
+}
+
+function choose(answer){
+if(answer===quiz.answers[current])score++;
+current++;
+if(current<questions.length)showQuestion();
+else showResult();
+}
+
+function showResult(){
+$("game").classList.add("hidden");
+$("result").classList.remove("hidden");
+$("score").textContent=score+"/"+questions.length;
+$("message").textContent=score===5
+?"Perfect! You know their choices amazingly well!"
+:score>=3
+?"Great job! You know your friend pretty well!"
+:"Keep learning about your friend and try again!";
+}
+
+function restart(){start(quiz)}
+function goHome(){
+location.hash="";
+$("result").classList.add("hidden");
+$("game").classList.add("hidden");
+$("share").classList.add("hidden");
+$("home").classList.remove("hidden");
+}
+build();
+const incoming=readLink();
+if(incoming)start(incoming);
+</script>
+</body>
+</html>
